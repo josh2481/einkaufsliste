@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einkaufsliste</title>
+</head>
+<body>
+    <h1>Einkaufsliste</h1>
+    <input type="text" id="itemInput" placeholder="Neues Item">
+    <button onclick="addItem()">Hinzufügen</button>
+    <button onclick="clearList()">Liste Leeren</button>
+    <ul id="list"></ul>
+
+    <script>
+        const apiUrl = "/liste"; // Lokaler API-Endpunkt
+
+        async function fetchList() {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            const listElement = document.getElementById("list");
+            listElement.innerHTML = "";
+            data.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = item;
+                listElement.appendChild(li);
+            });
+        }
+
+        async function addItem() {
+            const itemInput = document.getElementById("itemInput");
+            const item = itemInput.value;
+            if (!item) return alert("Gib ein Item ein!");
+
+            await fetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ item }),
+            });
+            itemInput.value = "";
+            fetchList();
+        }
+
+        async function clearList() {
+            await fetch(apiUrl, { method: "DELETE" });
+            fetchList();
+        }
+
+        fetchList(); // Liste laden beim Start
+    </script>
+</body>
+</html>
